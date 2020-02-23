@@ -132,13 +132,31 @@ It can be seen thatin many of these states the popularity of Warren and Biden is
 
 ```{r Q1 Part 2, include=TRUE, warning = FALSE, message = FALSE}
 
+####  Let's load the dataset and then clean it.
+rm(list = ls())
+pP <- primaryPolls <- read.csv('https://jmontgomery.github.io/PDS/Datasets/president_primary_polls_feb2020.csv', stringsAsFactors = F)
+pP <- primaryPolls<-primaryPolls[primaryPolls$candidate_name%in%c("Amy Klobuchar", "Bernard Sanders", "Elizabeth Warren", "Joseph R. Biden Jr.", "Michael Bloomberg", "Pete Buttigieg"),]
+pP$start_date <- primaryPolls$start_date <-as.Date(primaryPolls$start_date, "%m/%d/%Y")
 
+
+####  Let's re-organize the dataset so that there is only one row for each candidate-state dyad:
+library(dplyr)
+library(tidyr)
+library(readr)
+
+pP.v1 <- pP %>%
+  filter(!((state) == "")) %>%
+  select(candidate_name, state, pct, start_date)
+object.size(pP.v1)
+
+pP.v2 <- pP.v1 %>%
+  pivot_wider(names_from = start_date, values_from = pct)
+object.size(pP.v2)
+
+
+print(paste("The size of new dataframe is", round(object.size(pP.v2)/object.size(pP.v1),2),
+            "times greater than the previous one."))
 ```
-
-
-
-
-
 
 \newpage
 \section{Q2 - tidyverse}
