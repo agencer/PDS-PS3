@@ -169,8 +169,7 @@ Now you are going to combine two datasets in order to observe how many endorseme
 rm(list = ls())
 library(fivethirtyeight)
 library(tidyverse)
-polls <- read_csv('https://jmontgomery.github.io/PDS/Datasets/president
-_primary_polls_feb2020.csv')
+polls <- read_csv('https://jmontgomery.github.io/PDS/Datasets/president_primary_polls_feb2020.csv')
 Endorsements <- endorsements_2020
 ```
 
@@ -191,30 +190,33 @@ dplyr.
 \newpage
 \section{A2 - ggplot2}
 
-\subsection{Change the Endorsements variable name endorsee to candidate_name}
+\subsection{Change the Endorsements variable name endorsee to candidate name}
 
 ```{r Q2 Part 1, include=TRUE, warning = FALSE, message = FALSE}
-
-
+Endorsements <- Endorsements %>%
+  rename(candidate_name = endorsee)
 ```
 
 \subsection{Change the Endorsements dataframe into a tibble object.}
 
 ```{r Q2 Part 2, include=TRUE, warning = FALSE, message = FALSE}
-
-
+Endorsements <- as_tibble(Endorsements)
 ```
 
 \subsection{Filter the poll variable to only include the following 6 candidates: Amy Klobuchar, Bernard Sanders,Elizabeth Warren, Joseph R. Biden Jr., Michael Bloomberg, Pete Buttigieg and subset the dataset to the following five variables: candidate_name, sample_size, start_date, party, pct}
 
 ```{r Q2 Part 3, include=TRUE, warning = FALSE, message = FALSE}
-
-
+polls.cand <- polls %>%
+  filter(candidate_name == "Amy Klobuchar" | candidate_name == "Amy Klobuchar" | candidate_name ==  "Bernard Sanders" | candidate_name ==  "Elizabeth Warren" | candidate_name ==  "Joseph R. Biden Jr." | candidate_name ==  "Michael Bloomberg" | candidate_name ==  "Pete Buttigieg") %>%
+  select(candidate_name, sample_size, start_date, party, pct)
+unique(polls.cand$candidate_name)
 ```
 
 \subsection{Compare the candidate names in the two datasets and find instances where the a candidates name is spelled differently i.e. Bernard vs. Bernie. Using only dplyr functions, make these the same across datasets.}
 
 ```{r Q2 Part 4, include=TRUE, warning = FALSE, message = FALSE}
+Endorsements %>%
+  select(grepl("Bern", candidate_name))
 
 
 ```
