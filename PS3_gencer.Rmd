@@ -215,22 +215,54 @@ unique(polls.cand$candidate_name)
 \subsection{Compare the candidate names in the two datasets and find instances where the a candidates name is spelled differently i.e. Bernard vs. Bernie. Using only dplyr functions, make these the same across datasets.}
 
 ```{r Q2 Part 4, include=TRUE, warning = FALSE, message = FALSE}
-Endorsements %>%
-  select(grepl("Bern", candidate_name))
+unique(sort(Endorsements$candidate_name))
+unique(sort(polls.cand$candidate_name))
 
+####  There are two differences,
+# 1-  "Amy Klobuchar" vs "Amy Klobuchar" 
+# 2-  "Bernie Sanders" vs "Bernard Sanders"       <-----
+# 3-  "Joe Biden" vs "Joseph R. Biden Jr."        <-----
+# 4-  "Elizabeth Warren" vs "Elizabeth Warren"
+# 5-  "Michael Bloomberg" vs nope
+# 6-  "Pete Buttigieg" vs "Pete Buttigieg"  
 
+polls.cand <- polls.cand %>%
+  mutate(candidate_name = str_replace(candidate_name, "Bernard Sanders", "Bernie Sanders"))
+
+polls.cand <- polls.cand %>%
+  mutate(candidate_name = str_replace(candidate_name, "Joseph R. Biden Jr.", "Joe Biden"))
+
+unique(sort(Endorsements$candidate_name))
+unique(sort(polls.cand$candidate_name))
+
+####  COOL!!
 ```
 
 \subsection{Now combine the two datasets by candidate name using dplyr (there will only be five candidates after joining).}
 
 ```{r Q2 Part 5, include=TRUE, warning = FALSE, message = FALSE}
 
+####  The question says there will be only 5 candidates after merging. Therefore, I assume 
+# that we are expected to use 'inner.join'.
 
+inner.merged <- Endorsements %>%
+  inner_join(polls.cand, by = 'candidate_name')
+
+unique(inner.merged$candidate_name)
+
+####  Yes, there are five candidates!!
+
+####  However, note that this merging is not a good one as we merged 1000 observations
+# into 5000 observations by only candidate names without no other criteria!! 
 ```
 
 \subsection{Create a variable which indicates the number of endorsements for each of the five candidates using dplyr.}
 
 ```{r Q2 Part 6, include=TRUE, warning = FALSE, message = FALSE}
+
+inner.merged.1 <- inner.merged %>%
+  group_by(candidate_name)
+  mutate(count = n())
 
 
 ```
