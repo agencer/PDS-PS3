@@ -242,6 +242,10 @@ unique(sort(polls.cand$candidate_name))
 
 ```{r Q2 Part 5, include=TRUE, warning = FALSE, message = FALSE}
 
+polls.cand <- polls.cand %>%
+  group_by(candidate_name) %>%
+  mutate(pct.mean = mean(pct))
+
 ####  The question says there will be only 5 candidates after merging. Therefore, I assume 
 # that we are expected to use 'inner.join'.
 
@@ -259,32 +263,50 @@ unique(inner.merged$candidate_name)
 \subsection{Create a variable which indicates the number of endorsements for each of the five candidates using dplyr.}
 
 ```{r Q2 Part 6, include=TRUE, warning = FALSE, message = FALSE}
+inner.merged <- inner.merged %>%
+  group_by(candidate_name) %>%
+  mutate(endorse.count = n()) %>%
+  arrange(endorse.count)
 
-inner.merged.1 <- inner.merged %>%
-  group_by(candidate_name)
-  mutate(count = n())
 
-
+unique(data.frame(inner.merged$candidate_name, inner.merged$endorse.count))
 ```
 
 \subsection{Plot the number of endorsement each of the 5 candidates have. Save your plot as an object p.}
 
-```{r Q2 Part 7, include=TRUE, warning = FALSE, message = FALSE}
+```{r Q2 Part 7, include=TRUE, warning = FALSE, message = FALSE, fig.cap = "Candidates by Number of Endorsements - Default Theme", fig.height=3.5}
+p <- ggplot(data=inner.merged)+
+  geom_point(mapping = aes(x = reorder(candidate_name, endorse.count), y = endorse.count, size = pct.mean)) +
+  xlab("Candidate Names") +
+  scale_y_continuous(name = "Number of Endorsements", limits=c(0, 30000)) +
+  labs( title = "Candidates by their Endorsements", size = "Mean Percentage Vote") +
+  theme(legend.position="bottom")
 
-
+p
 ```
 
 \subsection{ Run the following code: p + theme_dark(). Notice how you can still customize your plot without rerunning the plot with new options. Save this plot in your forked repository}
 
-```{r Q2 Part 8, include=TRUE, warning = FALSE, message = FALSE}
-
+```{r Q2 Part 8, include=TRUE, warning = FALSE, message = FALSE, fig.cap = "Candidates by Number of Endorsements - Dark Theme", fig.height=3.5}
+p.new <- p + theme_dark() + theme(legend.position="bottom")
+p.new
+ggsave("candidate_endorsements.pdf")
 
 ```
 
 \subsection{Now, using the knowledge from the last step change the label of the X and Y axes to be more informative, add a title, and use your favorite theme. Save the plot in your forked repository.}
 
-```{r Q2 Part 9, include=TRUE, warning = FALSE, message = FALSE}
+```{r Q2 Part 9, include=TRUE, warning = FALSE, message = FALSE, fig.cap = "Candidates by Number of Endorsements - Economist Theme", fig.height=3.5}
+####  I have already done with changing labels.
+####  Now, I am changing to another theme.
 
+#install.packages("ggthemes")
+library(ggthemes)
+#?theme_economist
+
+p.new.1 <- p + theme_economist() + theme(legend.position="bottom")
+p.new.1
+ggsave("candidate_endorsements_my_fav.pdf")
 
 ```
 
