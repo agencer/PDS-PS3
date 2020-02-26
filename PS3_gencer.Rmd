@@ -343,8 +343,11 @@ tweets <- read_csv('https://politicaldatascience.com/PDS/Datasets/trump_tweets.c
 \bigskip
 
 ```{r Q3 Part 1, include=TRUE, warning = FALSE, message = FALSE}
-
-
+tweets.sep <- separate(data = tweets, col = created_at, into = c("date", "time"), sep = " ")
+tweets.sep$date<-as.Date(tweets.sep$date, "%m/%d/%Y")
+summary(tweets.sep$date)
+  
+#### As it can be seen here the coverage is ("2014-01-01" to "2020-02-14").
 ```
 
 \bigskip
@@ -355,7 +358,21 @@ tweets <- read_csv('https://politicaldatascience.com/PDS/Datasets/trump_tweets.c
 
 ```{r Q3 Part 2, include=TRUE, warning = FALSE, message = FALSE}
 
+####  Let's check the most Retweeeted ones:
+tweets.pop.retweet <- tweets.sep %>%
+  filter(is_retweet == FALSE) %>%
+  arrange(desc(retweet_count)) %>%
+  select(text) %>%
+  slice(1:5)
+tweets.pop.retweet
 
+####  Let's check the most favorited ones:
+tweets.pop.favorite <- tweets.sep %>%
+  filter(is_retweet == FALSE) %>%
+  arrange(desc(favorite_count)) %>%
+  select(text) %>%
+  slice(1:5)
+tweets.pop.favorite
 ```
 
 \bigskip
