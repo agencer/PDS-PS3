@@ -8,7 +8,7 @@ header-includes:
   - \usepackage{color}
   - \usepackage{float}
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -430,7 +430,7 @@ tweets.pop50words.ready <- text.as.data %>%
   arrange(desc(count))
 
 ####  Getting first 50 words
-tweets.pop50words.ready.2 <- tweets.pop50words.ready.2[1:50,]
+tweets.pop50words.ready.2 <- tweets.pop50words.ready[1:50,]
 
 wc <- wordcloud(words = tweets.pop50words.ready.2$value, freq = tweets.pop50words.ready.2$count, min.freq = 3,
           max.words=, random.order=FALSE, rot.per=0.35, 
@@ -444,8 +444,12 @@ wc <- wordcloud(words = tweets.pop50words.ready.2$value, freq = tweets.pop50word
 \bigskip
 
 ```{r Q3 Part 5, include=TRUE, warning = FALSE, message = FALSE}
-DTM <- TermDocumentMatrix((tweets.sep$text), control = list(weighting = weightTfIdf))
-?TermDocumentMatrix
+#install.packages("corpus")
+library("corpus")
+
+x <- VectorSource(tweets.sep$text)
+x <- VCorpus(x)
+DTM <- DocumentTermMatrix(x, control = list(weighting = weightTfIdf))
 ```
 
 \bigskip
@@ -456,7 +460,9 @@ DTM <- TermDocumentMatrix((tweets.sep$text), control = list(weighting = weightTf
 \bigskip
 
 ```{r Q3 Part 6, include=TRUE, warning = FALSE, message = FALSE}
+findFreqTerms(DTM, lowfreq = 0.8)
 
+####  At this point, I am not sure how to move as I coult not order the words by their frequency :/
 ```
 
 \bigskip
