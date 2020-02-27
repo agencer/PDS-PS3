@@ -7,6 +7,8 @@ output: pdf_document
 header-includes:
   - \usepackage{color}
   - \usepackage{float}
+editor_options: 
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -333,6 +335,8 @@ library(tm)
 library(lubridate)
 #install.packages('wordcloud')
 library(wordcloud)
+#install.packages("SnowballC")
+library(SnowballC)
 tweets <- read_csv('https://politicaldatascience.com/PDS/Datasets/trump_tweets.csv')
 ```
 
@@ -373,6 +377,8 @@ tweets.pop.favorite <- tweets.sep %>%
   select(text) %>%
   slice(1:5)
 tweets.pop.favorite
+
+
 ```
 
 \bigskip
@@ -383,7 +389,26 @@ tweets.pop.favorite
 
 ```{r Q3 Part 3, include=TRUE, warning = FALSE, message = FALSE}
 
+####  Remove extraneous whitespace
+text.as.data <- unlist(str_split(c(unlist(tweets.pop.favorite), unlist(tweets.pop.retweet)), " "))
 
+####  Convert everything to lower case:
+text.as.data.1 <- str_to_lower(text.as.data) 
+
+####  Remove numbers and punctuation:
+text.as.data.2 <- str_replace_all(text.as.data.1, pattern = "\\d", replacement = "") 
+text.as.data.3 <- str_replace_all(text.as.data.2, pattern = "[\\$\\.\\!\\/\\:\\#\\-\"\\&\\;]", replacement = "") 
+
+####  Remove the standard english stop words:
+stopwords_regex = paste(stopwords('en'), collapse = '\\b|\\b')
+stopwords_regex = paste0('\\b', stopwords_regex, '\\b')
+text.as.data.4 <- str_replace_all(text.as.data.3, pattern = stopwords_regex, replacement = "") 
+
+####  Add new words:
+new.words <- c("see", "people","new","want","one","even","must","need","done","back","just","going","know", "can","said","like","many","like","realdonaldtrump")
+text.as.data.5 <- c(text.as.data.4, new.words)
+text.as.data.6 <- str_replace_all(text.as.data.5, pattern = "(\"\")\\1", replacement = "") 
+text.as.data <- as_tibble((text.as.data.6)[ text.as.data.6 !=  ""])
 ```
 
 \bigskip
@@ -394,7 +419,31 @@ tweets.pop.favorite
 
 ```{r Q3 Part 4, include=TRUE, warning = FALSE, message = FALSE}
 
+####  I exclude his retweets as they do not reflect his words: 
+####  Also because the question did not specifically asked, I would not exclude the stop words.
+tweets.pop50words <- tweets.sep %>%
+    filter(is_retweet == FALSE) %>%
+    mutate(text = str_to_lower(text)) %>%
+    select(text)
 
+####  Getting number of each tweet
+tweets.pop50words.ready <- as_tibble(unlist(str_split(unlist(tweets.pop50words), pattern = " ")))
+tweets.pop50words.ready <- tweets.pop50words.ready %>%
+  group_by(value) %>%
+  mutate(count = n() )
+
+####  Getting rid of dublicates
+tweets.pop50words.ready.2 <- tweets.pop50words.ready %>%
+  distinct() %>%
+  arrange(desc(count))
+
+
+####  Getting first 50 words
+tweets.pop50words.ready.2 <- tweets.pop50words.ready.2[1:50,]
+
+wc <- wordcloud(words = tweets.pop50words.ready.2$value, freq = tweets.pop50words.ready.2$count, min.freq = 3,
+          max.words=, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
 ```
 
 \bigskip
@@ -404,8 +453,8 @@ tweets.pop.favorite
 \bigskip
 
 ```{r Q3 Part 5, include=TRUE, warning = FALSE, message = FALSE}
-
-
+DTM <- TermDocumentMatrix((tweets.sep$text), control = list(weighting = weightTfIdf))
+?TermDocumentMatrix
 ```
 
 \bigskip
@@ -416,7 +465,6 @@ tweets.pop.favorite
 \bigskip
 
 ```{r Q3 Part 6, include=TRUE, warning = FALSE, message = FALSE}
-
 
 ```
 
