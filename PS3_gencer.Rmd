@@ -389,25 +389,27 @@ tweets.pop.favorite
 
 ```{r Q3 Part 3, include=TRUE, warning = FALSE, message = FALSE}
 
-####  Remove extraneous whitespace
-text.as.data <- unlist(str_split(c(unlist(tweets.pop.favorite), unlist(tweets.pop.retweet)), " "))
-
+####  I exclude his retweets as they do not reflect his words:
 ####  Convert everything to lower case:
-text.as.data.1 <- str_to_lower(text.as.data) 
+tweets.trump <- tweets.sep %>%
+    filter(is_retweet == FALSE) %>%
+    mutate(text = str_to_lower(text)) %>%
+    select(text)
+
+####  Remove extraneous whitespace
+text.as.data.1 <- unlist(str_split(c(unlist(tweets.trump)), " "))
 
 ####  Remove numbers and punctuation:
 text.as.data.2 <- str_replace_all(text.as.data.1, pattern = "\\d", replacement = "") 
-text.as.data.3 <- str_replace_all(text.as.data.2, pattern = "[\\$\\.\\!\\/\\:\\#\\-\"\\&\\;]", replacement = "") 
+text.as.data.3 <- str_replace_all(text.as.data.2, pattern =  "[^[:alnum:]]", replacement = "") 
+text.as.data.4 <- str_replace_all(text.as.data.3, pattern =  "[:digit:]", replacement = "") 
 
 ####  Remove the standard english stop words:
 stopwords_regex = paste(stopwords('en'), collapse = '\\b|\\b')
 stopwords_regex = paste0('\\b', stopwords_regex, '\\b')
-text.as.data.4 <- str_replace_all(text.as.data.3, pattern = stopwords_regex, replacement = "") 
-
-####  Add new words:
-new.words <- c("see", "people","new","want","one","even","must","need","done","back","just","going","know", "can","said","like","many","like","realdonaldtrump")
-text.as.data.5 <- c(text.as.data.4, new.words)
-text.as.data.6 <- str_replace_all(text.as.data.5, pattern = "(\"\")\\1", replacement = "") 
+text.as.data.5 <- str_replace_all(text.as.data.4, pattern = stopwords_regex, replacement = "") 
+extra.stop.words <- c("\\bsee\\b|\\bpeople\\b|\\bnew\\b|\\bwant\\b|\\bone\\b|\\beven\\b|\\bmust\\b|\\bneed\\b|\\bdone\\b|back\\b|\\bjust\\b|\\bgoing\\b|\\bknow\\b|\\bcan\\b|\\bsaid\\b|\\blike\\b|\\bmany\\b|\\blike\\b|\\brealdonaldtrump\\b")
+text.as.data.6 <- str_replace_all(text.as.data.5, pattern = extra.stop.words, replacement = "") 
 text.as.data <- as_tibble((text.as.data.6)[ text.as.data.6 !=  ""])
 ```
 
@@ -419,24 +421,13 @@ text.as.data <- as_tibble((text.as.data.6)[ text.as.data.6 !=  ""])
 
 ```{r Q3 Part 4, include=TRUE, warning = FALSE, message = FALSE}
 
-####  I exclude his retweets as they do not reflect his words: 
-####  Also because the question did not specifically asked, I would not exclude the stop words.
-tweets.pop50words <- tweets.sep %>%
-    filter(is_retweet == FALSE) %>%
-    mutate(text = str_to_lower(text)) %>%
-    select(text)
-
 ####  Getting number of each tweet
-tweets.pop50words.ready <- as_tibble(unlist(str_split(unlist(tweets.pop50words), pattern = " ")))
-tweets.pop50words.ready <- tweets.pop50words.ready %>%
-  group_by(value) %>%
-  mutate(count = n() )
-
 ####  Getting rid of dublicates
-tweets.pop50words.ready.2 <- tweets.pop50words.ready %>%
+tweets.pop50words.ready <- text.as.data %>%
+  group_by(value) %>%
+  mutate(count = n() ) %>%
   distinct() %>%
   arrange(desc(count))
-
 
 ####  Getting first 50 words
 tweets.pop50words.ready.2 <- tweets.pop50words.ready.2[1:50,]
